@@ -16,10 +16,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { AssignRoleDto } from './dto/assign.role.dto';
+import { AssignRoleDto } from './dto/assign-role.dto';
 import { Role } from './entities/user.entity';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -31,11 +31,8 @@ import { Roles } from '../auth/decorators/roles.decorator';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // ─────────────────────────────────────────────
-  // POST /users — Solo ADMIN
-  // ─────────────────────────────────────────────
   @Post()
-  @UseGuards(AuthGuard, RolesGuard)  // Primero autentica, luego verifica rol
+  @UseGuards(AuthGuard, RolesGuard)  
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Crear usuario (solo ADMIN)' })
   @ApiResponse({ status: 201, description: 'Usuario creado' })
@@ -64,7 +61,7 @@ export class UsersController {
     const user = req['user'] as { id: number };
     return this.usersService.findById(user.id);
   }
-  
+
   @Patch(':id/role')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
