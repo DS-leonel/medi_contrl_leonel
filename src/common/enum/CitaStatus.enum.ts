@@ -1,0 +1,5 @@
+export enum CitaStatus {
+  PROGRAMADA = 'PROGRAMADA',
+  CANCELADA = 'CANCELADA',
+  COMPLETADA = 'COMPLETADA'
+}
