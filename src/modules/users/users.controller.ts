@@ -20,10 +20,10 @@ import type { Request } from 'express';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AssignRoleDto } from './dto/assign-role.dto';
-import { Role } from './entities/user.entity';
-import { AuthGuard } from '../auth/guards/auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from 'src/common/enum/roles.enum';
+import { AuthGuard } from '../auth/guard/auth/auth.guard';
+import { RolesGuard } from '../auth/guard/rol/rol.guard';
+import { Roles } from '../auth/decorator/roles.decorator';
 
 @ApiTags('Users')
 @ApiBearerAuth()

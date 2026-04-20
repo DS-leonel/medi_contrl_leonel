@@ -1,3 +1,4 @@
+import { Role } from 'src/common/enum/roles.enum';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -6,15 +7,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export enum Role {
-  ADMIN = 'ADMIN',
-  MEDICO = 'MEDICO',
-  PACIENTE = 'PACIENTE',
-}
-
 @Entity('users')
 export class User {
-
   @PrimaryGeneratedColumn()
   id!: number;
 

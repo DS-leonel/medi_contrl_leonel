@@ -1,6 +1,6 @@
 import { IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from '../entities/user.entity';
+import { Role } from 'src/common/enum/roles.enum';
 
 export class AssignRoleDto {
 
