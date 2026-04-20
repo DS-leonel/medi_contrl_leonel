@@ -22,6 +22,8 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()
     //TODO: Agregar aqui los tags para cada controlador
+    .addTag('Auth')
+    .addTag('Users')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
