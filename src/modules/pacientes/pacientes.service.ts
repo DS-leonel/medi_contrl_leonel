@@ -30,7 +30,7 @@ export class PacientesService {
    * Valida que el usuario exista, tenga rol PACIENTE y no tenga perfil previo.
    */
   async create(createPacienteDto: CreatePacienteDto): Promise<Paciente> {
-    const { usuarioId, ...datosPaciente } = createPacienteDto;
+    const { usuario: usuarioId, ...datosPaciente } = createPacienteDto;
 
     // 1. Verificar que el usuario existe
     const usuario = await this.usuarioRepository.findOne({
@@ -51,7 +51,7 @@ export class PacientesService {
 
     // 3. Verificar que no exista ya un perfil de paciente para este usuario
     const perfilExistente = await this.pacienteRepository.findOne({
-      where: { usuarioId },
+      where: { usuario: { id: usuarioId } },
     });
 
     if (perfilExistente) {
@@ -63,7 +63,7 @@ export class PacientesService {
     // 4. Crear y guardar el paciente
     const nuevoPaciente = this.pacienteRepository.create({
       ...datosPaciente,
-      usuarioId,
+      usuario: { id: usuarioId },
     });
 
     const pacienteGuardado = await this.pacienteRepository.save(nuevoPaciente);
@@ -128,7 +128,7 @@ export class PacientesService {
    */
   async findByUsuarioId(usuarioId: number): Promise<Paciente> {
     const paciente = await this.pacienteRepository.findOne({
-      where: { usuarioId },
+      where: { usuario: { id: usuarioId } },
       relations: ['usuario', 'citas'],
     });
 
@@ -193,7 +193,7 @@ export class PacientesService {
 
     const paciente = await this.findOne(pacienteId);
 
-    if (paciente.usuarioId !== usuarioSolicitanteId) {
+    if (paciente.usuario.id !== usuarioSolicitanteId) {
       throw new ForbiddenException(
         'No tienes permiso para acceder a la información de este paciente',
       );

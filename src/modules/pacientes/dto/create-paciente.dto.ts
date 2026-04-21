@@ -32,9 +32,9 @@ export class CreatePacienteDto {
     description: 'ID del usuario con rol PACIENTE',
     example: 5,
   })
-  @IsNumber({}, { message: 'El usuarioId debe ser un número' })
-  @IsNotEmpty({ message: 'El usuarioId es obligatorio' })
-  usuarioId: number;
+  @IsNumber({}, { message: 'El usuario debe ser un número' })
+  @IsNotEmpty({ message: 'El usuario es obligatorio' })
+  usuario: number;
 
   @ApiProperty({
     description: 'Fecha de nacimiento del paciente (YYYY-MM-DD)',

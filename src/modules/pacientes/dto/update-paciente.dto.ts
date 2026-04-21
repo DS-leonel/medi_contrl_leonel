@@ -5,11 +5,11 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 
 /**
  * DTO para actualización de paciente.
- * Se excluye `usuarioId` porque no debe cambiarse después del registro.
+ * Se excluye `usuario` porque no debe cambiarse después del registro.
  * Todos los campos heredados de CreatePacienteDto son opcionales.
  */
 export class UpdatePacienteDto extends PartialType(
-  OmitType(CreatePacienteDto, ['usuarioId'] as const),
+  OmitType(CreatePacienteDto, ['usuario'] as const),
 ) {
   @ApiPropertyOptional({
     description: 'Activar o desactivar el paciente en el sistema',

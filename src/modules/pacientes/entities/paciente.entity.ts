@@ -73,10 +73,7 @@ export class Paciente {
   @JoinColumn({ name: 'usuario_id' })
   usuario: User;
 
-  @Column({ name: 'usuario_id' })
-  usuarioId: number;
-
-  @ApiProperty({ description: 'Citas del paciente' })
-  @OneToMany(() => Cita, (cita) => cita.paciente, { eager: false })
-  citas: Cita[];
+  //@ApiProperty({ description: 'Citas del paciente' })
+  //@OneToMany(() => Cita, (cita) => cita.paciente, { eager: false })
+  //citas: Cita[];
 }
