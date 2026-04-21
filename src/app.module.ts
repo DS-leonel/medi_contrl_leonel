@@ -5,9 +5,10 @@ import { DatabaseModule } from './database/database.module';
 import { EnvModule } from './config/env/env.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AppJwtModule } from './modules/app-jwt/app-jwt.module';
+import { MedicosModule } from './modules/medicos/medicos.module';
 
 @Module({
-  imports: [DatabaseModule,EnvModule, AuthModule, AppJwtModule],
+  imports: [DatabaseModule,EnvModule, AuthModule, AppJwtModule, MedicosModule],
   controllers: [AppController],
   providers: [AppService],
 })
