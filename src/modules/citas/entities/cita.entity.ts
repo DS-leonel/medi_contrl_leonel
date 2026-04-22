@@ -7,19 +7,14 @@ import {
     ManyToOne,
     JoinColumn,
 } from 'typeorm';
-
-
-export enum CitaStatus {
-  PROGRAMADA = 'PROGRAMADA',
-  CANCELADA = 'CANCELADA',
-  COMPLETADA = 'COMPLETADA'
-}
+import { User } from '../../users/entities/user.entity';
+import { Medico } from '../../medicos/entities/medico.entity';
+import { CitaStatus } from '../../common/enum/CitaStatus.enum';
 
 @Entity('citas')
 export class Cita {
     @PrimaryGeneratedColumn()
     id!: number;
-
 
     @Column({ type: 'date' })
     fecha!: string;
@@ -30,26 +25,21 @@ export class Cita {
     @Column({ type: 'enum', enum: CitaStatus, default: CitaStatus.PROGRAMADA })
     estado!: CitaStatus;
 
-/*     @ManyToOne(() => User, { eager: true, nullable: false })
+    // Relación ManyToOne con User (paciente)
+    @ManyToOne(() => User, { eager: true, nullable: false })
     @JoinColumn({ name: 'paciente_id' })
-    paciente!: User; */
+    paciente!: User;
 
-    @Column({ name: 'paciente_id' })
-    pacienteId!: number;
-
-/*     @ManyToOne(() => User, { eager: true, nullable: false })
+    // Relación ManyToOne con Medico
+    @ManyToOne(() => Medico, (medico) => medico.citas, { eager: true, nullable: false })
     @JoinColumn({ name: 'medico_id' })
-    medico!: User;
- */
-    @Column({ name: 'medico_id' })
-    medicoId!: number;
+    medico!: Medico;
 
     @CreateDateColumn()
     createdAt!: Date;
 
     @UpdateDateColumn()
     updatedAt!: Date;
-
 }
 
 
