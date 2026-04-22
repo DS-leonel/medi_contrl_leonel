@@ -4,11 +4,10 @@ import {
   Column,
   OneToOne,
   JoinColumn,
-  // OneToMany,
+  OneToMany,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-
-// import { Cita } from '../citas/cita.entity'; // descomentar 
+import { Cita } from '../../citas/entities/cita.entity';
 
 
 @Entity('medicos')
@@ -26,6 +25,6 @@ export class Medico {
   @JoinColumn({ name: 'usuario_id' })
   usuario: User;
 
-  // @OneToMany(() => Cita, (cita) => cita.medico)
-  // citas: Cita[];
+  @OneToMany(() => Cita, (cita) => cita.medico)
+  citas: Cita[];
 }

@@ -1,18 +1,19 @@
 import {
   Injectable,
-  BadRequestException,
+  ConflictException,
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Cita } from './entities/cita.entity';
-import { CreateCitaDto } from './dto/create-cita.dto';
-import { UpdateCitaStatusDto } from './dto/update-cita.dto';
-import { CitaStatus } from 'src/common/enum/CitaStatus.enum';
-import { User } from '../users/entities/user.entity';
-import { Medico } from '../medicos/entities/medico.entity';
+import { Cita } from 'src/modules/citas/entities/cita.entity';
+import { CreateCitaDto } from 'src/modules/citas/dto/create-cita.dto';
+import { UpdateCitaStatusDto } from 'src/modules/citas/dto/update-cita.dto';
+import { CitaStatus } from 'src/common/enum/CitaStatus.enum'; // BIEN
+import { Medico } from 'src/modules/medicos/entities/medico.entity';
 import { Role } from 'src/common/enum/roles.enum';
+
+type AuthUserPayload = { id: number; role: Role };
 
 @Injectable()
 export class CitasService {
@@ -28,7 +29,7 @@ export class CitasService {
    * Restricción: Solo usuarios con role PACIENTE pueden crear citas
    * Validación: El médico no puede tener otra cita con la misma fecha, hora y estado 'programada'
    */
-  async create(createCitaDto: CreateCitaDto, user: User): Promise<Cita> {
+  async create(createCitaDto: CreateCitaDto, user: AuthUserPayload): Promise<Cita> {
     // Restricción: Solo PACIENTE puede crear citas
     if (user.role !== Role.PACIENTE) {
       throw new ForbiddenException(
@@ -57,7 +58,7 @@ export class CitasService {
     });
 
     if (citaExistente) {
-      throw new BadRequestException(
+      throw new ConflictException(
         'El médico ya tiene una cita programada en ese horario',
       );
     }
@@ -67,7 +68,7 @@ export class CitasService {
       fecha: createCitaDto.fecha,
       hora: createCitaDto.hora,
       estado: CitaStatus.PROGRAMADA,
-      paciente: user,
+      paciente: { id: user.id },
       medico,
     });
 
@@ -80,7 +81,7 @@ export class CitasService {
    * MEDICO: Retorna solo las citas vinculadas a su medicoId
    * PACIENTE: Retorna solo las citas vinculadas a su userId
    */
-  async findAll(user: User): Promise<Cita[]> {
+  async findAll(user: AuthUserPayload): Promise<Cita[]> {
     if (user.role === Role.ADMIN) {
       // ADMIN ve todas las citas
       return this.citaRepository.find({
@@ -143,7 +144,7 @@ export class CitasService {
   async update(
     id: number,
     updateCitaStatusDto: UpdateCitaStatusDto,
-    user: User,
+    user: AuthUserPayload,
   ): Promise<Cita> {
     // Verificar que la cita exista
     const cita = await this.findOne(id);
@@ -177,13 +178,14 @@ export class CitasService {
    * Cancelar una cita
    * Restricción: Solo el PACIENTE dueño de la cita o un ADMIN pueden cancelar
    */
-  async cancelar(id: number, user: User): Promise<Cita> {
+  async cancelar(id: number, user: AuthUserPayload): Promise<Cita> {
     // Verificar que la cita exista
     const cita = await this.findOne(id);
 
     // Validar permisos: Solo el paciente dueño o un admin pueden cancelar
     const esAdmin = user.role === Role.ADMIN;
-    const esPacienteDueño = user.role === Role.PACIENTE && cita.paciente.id === user.id;
+    // En tu service
+    const esPacienteDueño = user.role === Role.PACIENTE && Number(cita.paciente.id) === Number(user.id);
 
     if (!esAdmin && !esPacienteDueño) {
       throw new ForbiddenException(

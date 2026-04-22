@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Medico } from '../../medicos/entities/medico.entity';
-import { CitaStatus } from '../../common/enum/CitaStatus.enum';
+import { CitaStatus } from 'src/common/enum/CitaStatus.enum'; // BIEN
 
 @Entity('citas')
 export class Cita {

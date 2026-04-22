@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum } from 'class-validator';
-import { CitaStatus } from '../entities/cita.entity';
+import { CitaStatus } from 'src/common/enum/CitaStatus.enum'; 
  
 export class UpdateCitaStatusDto {
   @ApiProperty({
