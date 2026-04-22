@@ -4,6 +4,24 @@ import { Role } from 'src/common/enum/roles.enum';
 
 export class CreateUserDto {
 
+  @ApiProperty({ example: 'Carlos' })
+  @IsString()
+  primerNombre!: string;
+
+  @ApiPropertyOptional({ example: 'Andres' })
+  @IsOptional()
+  @IsString()
+  segundoNombre?: string;
+
+  @ApiProperty({ example: 'Lopez' })
+  @IsString()
+  primerApellido!: string;
+
+  @ApiPropertyOptional({ example: 'Gomez' })
+  @IsOptional()
+  @IsString()
+  segundoApellido?: string;
+
   @ApiProperty({ example: 'usuario@email.com' })
   @IsEmail({}, { message: 'El email no tiene un formato válido' })
   email!: string;

@@ -18,7 +18,15 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
-    const { email, password, role } = createUserDto;
+    const {
+      primerNombre,
+      segundoNombre,
+      primerApellido,
+      segundoApellido,
+      email,
+      password,
+      role,
+    } = createUserDto;
 
     const existingUser = await this.userRepository.findOne({
       where: { email },
@@ -30,6 +38,10 @@ export class UsersService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = this.userRepository.create({
+      primerNombre,
+      segundoNombre,
+      primerApellido,
+      segundoApellido,
       email,
       password: hashedPassword,
       role,
@@ -42,7 +54,17 @@ export class UsersService {
 
   async findAll(): Promise<Omit<User, 'password'>[]> {
     const users = await this.userRepository.find({
-      select: ['id', 'email', 'role', 'createdAt', 'updatedAt'],
+      select: [
+        'id',
+        'primerNombre',
+        'segundoNombre',
+        'primerApellido',
+        'segundoApellido',
+        'email',
+        'role',
+        'createdAt',
+        'updatedAt',
+      ],
     });
     return users;
   }
@@ -50,7 +72,17 @@ export class UsersService {
   async findById(id: number): Promise<Omit<User, 'password'>> {
     const user = await this.userRepository.findOne({
       where: { id },
-      select: ['id', 'email', 'role', 'createdAt', 'updatedAt'],
+      select: [
+        'id',
+        'primerNombre',
+        'segundoNombre',
+        'primerApellido',
+        'segundoApellido',
+        'email',
+        'role',
+        'createdAt',
+        'updatedAt',
+      ],
     });
 
     if (!user) {
