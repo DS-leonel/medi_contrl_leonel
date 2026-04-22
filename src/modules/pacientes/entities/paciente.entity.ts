@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../users/entities/user.entity';
-//import { Cita } from '../../citas/entities/cita.entity';
+import { Cita } from '../../citas/entities/cita.entity';
 
 @Entity('pacientes')
 export class Paciente {
@@ -73,7 +73,7 @@ export class Paciente {
   @JoinColumn({ name: 'usuario_id' })
   usuario: User;
 
-  //@ApiProperty({ description: 'Citas del paciente' })
-  //@OneToMany(() => Cita, (cita) => cita.paciente, { eager: false })
-  //citas: Cita[];
+  @ApiProperty({ description: 'Citas del paciente' })
+  @OneToMany(() => Cita, (cita) => cita.paciente, { eager: false })
+  citas: Cita[];
 }

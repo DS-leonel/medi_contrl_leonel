@@ -13,7 +13,7 @@ export class CreateUserDto {
   @MinLength(6, { message: 'La contraseña debe tener mínimo 6 caracteres' })
   password!: string;
 
-  @ApiPropertyOptional({ enum: Role, default: Role.PACIENTE })
+  @ApiPropertyOptional({ enum: Role, example: Role.PACIENTE })
   @IsOptional()
   @IsEnum(Role, { message: 'El rol debe ser ADMIN, MEDICO o PACIENTE' })
   role?: Role;
