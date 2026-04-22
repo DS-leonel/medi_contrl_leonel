@@ -29,7 +29,7 @@ import { Roles } from '../auth/decorator/roles.decorator';
 import { Role } from '../../common/enum/roles.enum';
 
 @ApiTags('Pacientes')
-@ApiBearerAuth('JWT-auth')
+@ApiBearerAuth()
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('pacientes')
 export class PacientesController {

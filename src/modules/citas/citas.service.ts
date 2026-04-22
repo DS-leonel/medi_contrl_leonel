@@ -12,6 +12,7 @@ import { UpdateCitaStatusDto } from 'src/modules/citas/dto/update-cita.dto';
 import { CitaStatus } from 'src/common/enum/CitaStatus.enum'; // BIEN
 import { Medico } from 'src/modules/medicos/entities/medico.entity';
 import { Role } from 'src/common/enum/roles.enum';
+import { Paciente } from '../pacientes/entities/paciente.entity';
 
 type AuthUserPayload = { id: number; role: Role };
 
@@ -22,6 +23,8 @@ export class CitasService {
     private readonly citaRepository: Repository<Cita>,
     @InjectRepository(Medico)
     private readonly medicoRepository: Repository<Medico>,
+    @InjectRepository(Paciente)
+    private readonly pacienteRepository: Repository<Paciente>,
   ) {}
 
   /**
@@ -36,6 +39,15 @@ export class CitasService {
         'Solo los pacientes pueden crear citas',
       );
     }
+
+    //Validar que el paciente exista (aunque debería existir porque el usuario es paciente)
+    const paciente = await this.pacienteRepository.findOne({
+      where: { usuario: { id: user.id } },
+    });
+
+      if (!paciente) {
+        throw new NotFoundException('El paciente no existe');
+      }
 
     // Validar que el médico exista
     const medico = await this.medicoRepository.findOne({
@@ -68,7 +80,7 @@ export class CitasService {
       fecha: createCitaDto.fecha,
       hora: createCitaDto.hora,
       estado: CitaStatus.PROGRAMADA,
-      paciente: { id: user.id },
+      paciente,
       medico,
     });
 

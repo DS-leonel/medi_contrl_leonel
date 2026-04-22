@@ -7,9 +7,9 @@ import {
     ManyToOne,
     JoinColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
 import { Medico } from '../../medicos/entities/medico.entity';
 import { CitaStatus } from 'src/common/enum/CitaStatus.enum'; // BIEN
+import { Paciente } from 'src/modules/pacientes/entities/paciente.entity';
 
 @Entity('citas')
 export class Cita {
@@ -25,10 +25,10 @@ export class Cita {
     @Column({ type: 'enum', enum: CitaStatus, default: CitaStatus.PROGRAMADA })
     estado!: CitaStatus;
 
-    // Relación ManyToOne con User (paciente)
-    @ManyToOne(() => User, { eager: true, nullable: false })
+    // Relación ManyToOne con Paciente
+    @ManyToOne(() => Paciente, (paciente) => paciente.citas, { eager: true, nullable: false })
     @JoinColumn({ name: 'paciente_id' })
-    paciente!: User;
+    paciente!: Paciente;
 
     // Relación ManyToOne con Medico
     @ManyToOne(() => Medico, (medico) => medico.citas, { eager: true, nullable: false })
