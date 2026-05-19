@@ -23,7 +23,7 @@ import {
   SupportMessageDto,
   TicketRoomDto,
 } from './dto/support-message.dto';
-import { mapMensaje, mapTicket, mapUsuario } from './soporte.mappers';
+import { SoporteMapper } from './soporte.mappers';
 
 type SocketUserPayload = {
   id: number;
@@ -80,14 +80,17 @@ export class SoporteGateway
     @MessageBody() payload: OpenTicketMessageDto,
   ) {
     const user = this.requireSocketUser(client);
-    const ticket = await this.soporteService.crearTicket(payload, user.id);
+    const ticket = await this.soporteService.crearTicketEntity(
+      payload,
+      user.id,
+    );
 
     await client.join(ticket.salaId);
 
     const data = {
-      ticket: mapTicket(ticket),
+      ticket: SoporteMapper.toTicketDto(ticket),
       sala: ticket.salaId,
-      usuario: mapUsuario(ticket.usuario),
+      usuario: SoporteMapper.toUsuarioDto(ticket.usuario),
     };
 
     client.emit('ticketOpened', data);
@@ -103,7 +106,7 @@ export class SoporteGateway
     @MessageBody() payload: TicketRoomDto,
   ) {
     const user = this.requireSocketUser(client);
-    const ticket = await this.soporteService.findById(payload.ticketId);
+    const ticket = await this.soporteService.findTicketById(payload.ticketId);
 
     this.soporteService.validarParticipante(
       ticket.usuario.id,
@@ -116,9 +119,9 @@ export class SoporteGateway
     const historial = await this.soporteService.obtenerHistorial(ticket.salaId);
 
     const data = {
-      ticket: mapTicket(ticket),
+      ticket: SoporteMapper.toTicketDto(ticket),
       sala: ticket.salaId,
-      mensajes: historial.map(mapMensaje),
+      mensajes: historial.map(SoporteMapper.toMensajeDto),
     };
 
     client.emit('ticketHistory', data);
@@ -140,9 +143,9 @@ export class SoporteGateway
     await client.join(ticket.salaId);
 
     const data = {
-      ticket: mapTicket(ticket),
+      ticket: SoporteMapper.toTicketDto(ticket),
       sala: ticket.salaId,
-      mensaje: mapMensaje(mensaje),
+      mensaje: SoporteMapper.toMensajeDto(mensaje),
     };
 
     this.server.to(ticket.salaId).emit('receiveMessage', data);
@@ -161,14 +164,14 @@ export class SoporteGateway
       );
     }
 
-    const ticket = await this.soporteService.cambiarEstado(
+    const ticket = await this.soporteService.cambiarEstadoEntity(
       payload.ticketId,
       TicketStatus.RESUELTO,
       user.role,
     );
 
     const data = {
-      ticket: mapTicket(ticket),
+      ticket: SoporteMapper.toTicketDto(ticket),
       sala: ticket.salaId,
       message: 'Ticket cerrado correctamente',
     };

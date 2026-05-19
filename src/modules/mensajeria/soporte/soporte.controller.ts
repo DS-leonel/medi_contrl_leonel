@@ -64,8 +64,9 @@ export class SoporteController {
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Ticket encontrado' })
   @ApiResponse({ status: 404, description: 'Ticket no encontrado' })
-  findById(@Param('id', ParseIntPipe) id: number) {
-    return this.soporteService.findById(id);
+  findById(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    const user = req['user'] as { id: number; role: Role };
+    return this.soporteService.findById(id, user.id, user.role);
   }
 
   // ─── PATCH /soporte/tickets/:id/estado ───────────────────────────────────

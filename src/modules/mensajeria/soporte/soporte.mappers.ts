@@ -1,53 +1,53 @@
-// soporte.mappers.ts
 import { Mensaje } from '../chat/entities/mensaje.entity';
-import { Ticket } from './entities/ticket.entity';
 import { User } from 'src/modules/users/entities/user.entity';
+import { UsuarioResponseDto } from './dto/usuario-response.dto';
+import { Ticket } from './entities/ticket.entity';
+import { TicketResponseDto } from './dto/ticket-response.dto';
+import { TicketConUsuarioResponseDto } from './dto/ticket-con-usuario-response.dto';
+import { MensajeResponseDto } from './dto/mensaje-response.dto';
 
-export interface UsuarioResponse {
-  id: number;
-  nombre: string;
-  role: string;
-}
+export class SoporteMapper {
+  static toUsuarioDto(user?: User | null): UsuarioResponseDto | null {
+    if (!user) return null;
 
-export interface TicketResponse {
-  id: number;
-  descripcion: string;
-  estado: string;
-}
+    const nombre = [
+      user.primerNombre,
+      user.segundoNombre,
+      user.primerApellido,
+      user.segundoApellido,
+    ]
+      .filter(Boolean)
+      .join(' ');
 
-export interface MensajeResponse {
-  id: number;
-  contenido: string;
-  remitente: UsuarioResponse | null;
-}
+    const dto = new UsuarioResponseDto();
+    dto.id = user.id;
+    dto.nombre = nombre;
+    dto.role = user.role;
+    return dto;
+  }
 
-export function mapUsuario(user?: User | null): UsuarioResponse | null {
-  if (!user) return null;
+  static toTicketDto(ticket: Ticket): TicketResponseDto {
+    const dto = new TicketResponseDto();
+    dto.id = ticket.id;
+    dto.descripcion = ticket.descripcion;
+    dto.estado = ticket.estado;
+    return dto;
+  }
 
-  const nombre = [
-    user.primerNombre,
-    user.segundoNombre,
-    user.primerApellido,
-    user.segundoApellido,
-  ]
-    .filter(Boolean)
-    .join(' ');
+  static toTicketConUsuarioDto(ticket: Ticket): TicketConUsuarioResponseDto {
+    const dto = new TicketConUsuarioResponseDto();
+    dto.id = ticket.id;
+    dto.descripcion = ticket.descripcion;
+    dto.estado = ticket.estado;
+    dto.usuario = SoporteMapper.toUsuarioDto(ticket.usuario);
+    return dto;
+  }
 
-  return { id: user.id, nombre, role: user.role };
-}
-
-export function mapTicket(ticket: Ticket): TicketResponse {
-  return {
-    id: ticket.id,
-    descripcion: ticket.descripcion,
-    estado: ticket.estado,
-  };
-}
-
-export function mapMensaje(mensaje: Mensaje): MensajeResponse {
-  return {
-    id: mensaje.id,
-    contenido: mensaje.contenido,
-    remitente: mapUsuario(mensaje.remitente),
-  };
+  static toMensajeDto(mensaje: Mensaje): MensajeResponseDto {
+    const dto = new MensajeResponseDto();
+    dto.id = mensaje.id;
+    dto.contenido = mensaje.contenido;
+    dto.remitente = SoporteMapper.toUsuarioDto(mensaje.remitente);
+    return dto;
+  }
 }

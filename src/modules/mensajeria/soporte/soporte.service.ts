@@ -11,6 +11,9 @@ import { TicketStatus } from 'src/common/enum/TicketStatus.enum';
 import { Role } from 'src/common/enum/roles.enum';
 import { User } from 'src/modules/users/entities/user.entity';
 import { Mensaje } from '../chat/entities/mensaje.entity';
+import { SoporteMapper } from './soporte.mappers';
+import { TicketResponseDto } from './dto/ticket-response.dto';
+import { TicketConUsuarioResponseDto } from './dto/ticket-con-usuario-response.dto';
 
 @Injectable()
 export class SoporteService {
@@ -24,7 +27,15 @@ export class SoporteService {
   ) {}
 
   // ─── Crear ticket (PACIENTE o MEDICO) ────────────────────────────────────
-  async crearTicket(dto: CreateTicketDto, usuarioId: number): Promise<Ticket> {
+  async crearTicket(dto: CreateTicketDto, usuarioId: number): Promise<TicketResponseDto> {
+    const ticket = await this.crearTicketEntity(dto, usuarioId);
+    return SoporteMapper.toTicketDto(ticket);
+  }
+
+  async crearTicketEntity(
+    dto: CreateTicketDto,
+    usuarioId: number,
+  ): Promise<Ticket> {
     const usuario = await this.userRepository.findOne({
       where: { id: usuarioId },
     });
@@ -43,29 +54,51 @@ export class SoporteService {
 
     // Asignar el salaId usando el id generado
     guardado.salaId = `soporte-ticket-${guardado.id}`;
-    return this.ticketRepository.save(guardado);
+    await this.ticketRepository.save(guardado);
+    return this.findTicketById(guardado.id);
   }
 
   // ─── Listar tickets ───────────────────────────────────────────────────────
   // ADMIN: ve todos los tickets del sistema
   // PACIENTE / MEDICO: solo ven los suyos
-  async listarTickets(usuarioId: number, role: Role): Promise<Ticket[]> {
+  async listarTickets(
+    usuarioId: number,
+    role: Role,
+  ): Promise<TicketConUsuarioResponseDto[] | TicketResponseDto[]> {
     if (role === Role.ADMIN) {
-      return this.ticketRepository.find({
+      const tickets = await this.ticketRepository.find({
         relations: ['usuario'],
         order: { creadoEn: 'DESC' },
       });
+      return tickets.map(SoporteMapper.toTicketConUsuarioDto);
     }
 
-    return this.ticketRepository.find({
+    const tickets = await this.ticketRepository.find({
       where: { usuarioId },
       relations: ['usuario'],
       order: { creadoEn: 'DESC' },
     });
+    return tickets.map(SoporteMapper.toTicketDto);
   }
 
   // ─── Obtener ticket por ID ────────────────────────────────────────────────
-  async findById(id: number): Promise<Ticket> {
+  async findById(
+    id: number,
+    usuarioId: number,
+    role: Role,
+  ): Promise<TicketConUsuarioResponseDto | TicketResponseDto> {
+    const ticket = await this.findTicketById(id);
+
+    this.validarParticipante(ticket.usuarioId, usuarioId, role);
+
+    if (role === Role.ADMIN) {
+      return SoporteMapper.toTicketConUsuarioDto(ticket);
+    }
+
+    return SoporteMapper.toTicketDto(ticket);
+  }
+
+  async findTicketById(id: number): Promise<Ticket> {
     const ticket = await this.ticketRepository.findOne({
       where: { id },
       relations: ['usuario'],
@@ -83,6 +116,15 @@ export class SoporteService {
     id: number,
     estado: TicketStatus,
     role: Role,
+  ): Promise<TicketResponseDto> {
+    const ticket = await this.cambiarEstadoEntity(id, estado, role);
+    return SoporteMapper.toTicketDto(ticket);
+  }
+
+  async cambiarEstadoEntity(
+    id: number,
+    estado: TicketStatus,
+    role: Role,
   ): Promise<Ticket> {
     if (role !== Role.ADMIN) {
       throw new ForbiddenException(
@@ -90,14 +132,17 @@ export class SoporteService {
       );
     }
 
-    const ticket = await this.findById(id);
+    const ticket = await this.findTicketById(id);
     ticket.estado = estado;
     return this.ticketRepository.save(ticket);
   }
 
   // ─── Reabrir ticket (usuario dueño) ──────────────────────────────────────
-  async reabrirTicket(id: number, usuarioId: number): Promise<Ticket> {
-    const ticket = await this.findById(id);
+  async reabrirTicket(
+    id: number,
+    usuarioId: number,
+  ): Promise<TicketResponseDto> {
+    const ticket = await this.findTicketById(id);
 
     // Solo el dueño del ticket puede reabrirlo
     if (ticket.usuarioId !== usuarioId) {
@@ -112,7 +157,8 @@ export class SoporteService {
     }
 
     ticket.estado = TicketStatus.ABIERTO;
-    return this.ticketRepository.save(ticket);
+    const ticketActualizado = await this.ticketRepository.save(ticket);
+    return SoporteMapper.toTicketDto(ticketActualizado);
   }
 
   async procesarMensaje(
@@ -121,7 +167,7 @@ export class SoporteService {
     userId: number,
     role: Role,
   ): Promise<{ mensaje: Mensaje; ticket: Ticket }> {
-    const ticket = await this.findById(ticketId);
+    const ticket = await this.findTicketById(ticketId);
 
     this.validarParticipante(ticket.usuario.id, userId, role);
     this.validarTicketAbierto(ticket.estado);
@@ -138,7 +184,7 @@ export class SoporteService {
 
     let ticketActualizado = ticket;
     if (ticket.estado === TicketStatus.ABIERTO) {
-      ticketActualizado = await this.cambiarEstado(
+      ticketActualizado = await this.cambiarEstadoEntity(
         ticket.id,
         TicketStatus.EN_ATENCION,
         Role.ADMIN,
