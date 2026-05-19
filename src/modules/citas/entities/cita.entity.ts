@@ -5,11 +5,13 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     ManyToOne,
+    OneToMany,
     JoinColumn,
 } from 'typeorm';
 import { Medico } from '../../medicos/entities/medico.entity';
-import { CitaStatus } from 'src/common/enum/CitaStatus.enum'; // BIEN
+import { CitaStatus } from 'src/common/enum/CitaStatus.enum';
 import { Paciente } from 'src/modules/pacientes/entities/paciente.entity';
+import { Mensaje } from 'src/modules/mensajeria/chat/entities/mensaje.entity';
 
 @Entity('citas')
 export class Cita {
@@ -35,14 +37,13 @@ export class Cita {
     @JoinColumn({ name: 'medico_id' })
     medico!: Medico;
 
+    // Relación OneToMany con Mensaje
+    @OneToMany(() => Mensaje, (mensaje) => mensaje.cita)
+    mensajes: Mensaje[];
+
     @CreateDateColumn()
     createdAt!: Date;
 
     @UpdateDateColumn()
     updatedAt!: Date;
 }
-
-
-
-
-
