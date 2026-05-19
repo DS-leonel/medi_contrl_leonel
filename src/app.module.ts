@@ -8,9 +8,19 @@ import { AppJwtModule } from './modules/app-jwt/app-jwt.module';
 import { MedicosModule } from './modules/medicos/medicos.module';
 import { CitasModule } from './modules/citas/citas.module';
 import { PacientesModule } from './modules/pacientes/pacientes.module';
+import { ChatModule } from './modules/mensajeria/chat/chat.module';
 
 @Module({
-  imports: [DatabaseModule, EnvModule, AuthModule, AppJwtModule, MedicosModule, PacientesModule, CitasModule],
+  imports: [
+    DatabaseModule,
+    EnvModule,
+    AuthModule,
+    AppJwtModule,
+    MedicosModule,
+    PacientesModule,
+    CitasModule,
+    ChatModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
