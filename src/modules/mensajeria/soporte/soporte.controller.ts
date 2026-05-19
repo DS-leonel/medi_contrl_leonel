@@ -83,7 +83,7 @@ export class SoporteController {
     @Req() req: Request,
   ) {
     const user = req['user'] as { id: number; role: Role };
-    return this.soporteService.cambiarEstado(id, dto, user.role);
+    return this.soporteService.cambiarEstado(id, dto.estado, user.role);
   }
 
   // ─── PATCH /soporte/tickets/:id/reabrir ──────────────────────────────────
