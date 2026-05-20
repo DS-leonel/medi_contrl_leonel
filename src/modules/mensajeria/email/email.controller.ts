@@ -53,11 +53,11 @@ export class EmailController {
       };
     } catch (error) {
       this.logger.error(
-        `Error al enviar correo de prueba: ${error.message}`,
+        `Error al enviar correo de prueba: ${error}`,
       );
       return {
         success: false,
-        message: `Error al enviar correo: ${error.message}`,
+        message: `Error al enviar correo: ${error}`,
       };
     }
   }
@@ -96,11 +96,11 @@ export class EmailController {
       };
     } catch (error) {
       this.logger.error(
-        `Error al enviar confirmación: ${error.message}`,
+        `Error al enviar confirmación: ${error}`,
       );
       return {
         success: false,
-        message: `Error al enviar confirmación: ${error.message}`,
+        message: `Error al enviar confirmación: ${error}`,
       };
     }
   }
@@ -139,11 +139,11 @@ export class EmailController {
       };
     } catch (error) {
       this.logger.error(
-        `Error al enviar recordatorio: ${error.message}`,
+        `Error al enviar recordatorio: ${error}`,
       );
       return {
         success: false,
-        message: `Error al enviar recordatorio: ${error.message}`,
+        message: `Error al enviar recordatorio: ${error}`,
       };
     }
   }

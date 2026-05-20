@@ -96,7 +96,7 @@ export class CitasService {
       await this.emailService.enviarConfirmacionCita(citaGuardada);
     } catch (error) {
       this.logger.error(
-        `Error al enviar email de confirmación para cita ${citaGuardada.id}: ${error.message}`,
+        `Error al enviar email de confirmación para cita ${citaGuardada.id}: ${error}`,
       );
       // No lanzamos el error para no interrumpir la creación de la cita
     }

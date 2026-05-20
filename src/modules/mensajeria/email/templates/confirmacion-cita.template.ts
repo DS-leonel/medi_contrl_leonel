@@ -12,7 +12,7 @@ export class ConfirmacionCitaTemplate {
       : 'Médico';
 
     const especialidad = cita.medico?.especialidad || 'Medicina General';
-    const fecha = new Date(cita.fecha).toLocaleDateString('es-ES', {
+    const fecha = new Date(`${cita.fecha}T00:00:00`).toLocaleDateString('es-ES', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -95,7 +95,7 @@ export class ConfirmacionCitaTemplate {
 
                     <!-- CTA -->
                     <div style="margin-top: 30px; text-align: center;">
-                      <a href="https://medicontrol.com/mis-citas" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 12px 40px; border-radius: 4px; font-weight: 600; font-size: 16px;">Ver mis Citas</a>
+                      <a href="http://localhost:8080/api#/Citas" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 12px 40px; border-radius: 4px; font-weight: 600; font-size: 16px;">Ver mis Citas</a>
                     </div>
 
                     <p style="color: #999999; margin: 30px 0 0 0; font-size: 14px; line-height: 1.6;">

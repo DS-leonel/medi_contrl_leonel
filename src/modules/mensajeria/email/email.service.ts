@@ -109,8 +109,8 @@ export class EmailService {
       );
     } catch (error) {
       this.logger.error(
-        `Error al enviar email a ${sendEmailDto.to}: ${error.message}`,
-        error.stack,
+        `Error al enviar email a ${sendEmailDto.to}: ${error}`,
+        error,
       );
 
       throw error;
@@ -172,8 +172,8 @@ export class EmailService {
       );
     } catch (error) {
       this.logger.error(
-        `Error enviando confirmación: ${error.message}`,
-        error.stack,
+        `Error enviando confirmación: ${error}`,
+        error,
       );
 
       throw error;
@@ -248,8 +248,8 @@ export class EmailService {
       );
     } catch (error) {
       this.logger.error(
-        `Error enviando recordatorio: ${error.message}`,
-        error.stack,
+        `Error enviando recordatorio: ${error}`,
+        error,
       );
 
       throw error;
@@ -259,7 +259,7 @@ export class EmailService {
   /**
    * Cron Job cada hora
    */
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(process.env.EMAIL_REMINDER_CRON || CronExpression.EVERY_HOUR)
   async verificarYEnviarRecordatorios(): Promise<void> {
     try {
       this.logger.log(
@@ -345,7 +345,7 @@ export class EmailService {
             this.citasEnviadas.add(cita.id);
           } catch (error) {
             this.logger.error(
-              `Error en cita ${cita.id}: ${error.message}`,
+              `Error en cita ${cita.id}: ${error}`,
             );
           }
         }
@@ -356,8 +356,8 @@ export class EmailService {
       );
     } catch (error) {
       this.logger.error(
-        `Error en cron job: ${error.message}`,
-        error.stack,
+        `Error en cron job: ${error}`,
+        error,
       );
     }
   }

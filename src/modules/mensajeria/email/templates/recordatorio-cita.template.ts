@@ -20,10 +20,14 @@ export class RecordatorioCitaTemplate {
     });
     const hora = cita.hora;
 
+    const minutosRestantes = Math.round(horasRestantes * 60);
+
     const tiempoRestante =
-      horasRestantes < 24
-        ? `en ${Math.round(horasRestantes)} horas`
-        : `el ${fecha}`;
+      horasRestantes < 1
+        ? `en ${minutosRestantes} ${minutosRestantes === 1 ? 'minuto' : 'minutos'}`
+        : horasRestantes < 24
+          ? `en ${Math.round(horasRestantes)} ${Math.round(horasRestantes) === 1 ? 'hora' : 'horas'}`
+          : `el ${fecha}`;
 
     return `
       <!DOCTYPE html>
