@@ -87,6 +87,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       salaId,
       contenido,
       user.id,
+      citaId,
     );
 
     // Emitir a todos en la sala

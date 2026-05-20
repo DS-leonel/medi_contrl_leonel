@@ -19,11 +19,13 @@ export class ChatService {
   salaId: string,
   contenido: string,
   remitenteId: number,
+  citaId: number,
 ): Promise<Mensaje> {
   const mensaje = this.mensajeRepository.create({
     salaId,
     contenido,
     remitente: { id: remitenteId } as any, // TypeORM acepta esto para FK
+    cita: { id: citaId } as any,
   });
   return await this.mensajeRepository.save(mensaje);
 }
