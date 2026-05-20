@@ -3,6 +3,7 @@ import {
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -14,7 +15,6 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { Role } from 'src/common/enum/roles.enum';
 import { TicketStatus } from 'src/common/enum/TicketStatus.enum';
 import { SoporteService } from './soporte.service';
@@ -24,21 +24,13 @@ import {
   TicketRoomDto,
 } from './dto/support-message.dto';
 import { SoporteMapper } from './soporte.mappers';
+import { WsAuthMiddleware } from 'src/common/websockets/middleware/ws-auth.middleware';
+import { SocketUserPayload } from 'src/common/websockets/types/socket-user-payload.type';
 
-type SocketUserPayload = {
-  id: number;
-  role: Role;
-};
-
-type SocketJwtPayload = SocketUserPayload & {
-  sub?: number;
-  email: string;
-};
-
-@WebSocketGateway({namespace: '/soporte' })
+@WebSocketGateway({ namespace: '/soporte' })
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 export class SoporteGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   private readonly logger = new Logger(SoporteGateway.name);
   private readonly ADMIN_CHANNEL = 'admin-notifications';
@@ -50,12 +42,16 @@ export class SoporteGateway
 
   constructor(
     private readonly soporteService: SoporteService,
-    private readonly jwtService: JwtService,
+    private readonly wsAuthMiddleware: WsAuthMiddleware,
   ) {}
+
+  afterInit(server: Server) {
+    this.wsAuthMiddleware.use(server);
+  }
 
   handleConnection(client: Socket) {
     try {
-      const user = this.requireSocketUser(client);
+      const user = this.getSocketUser(client);
 
       if (user.role === Role.ADMIN) {
         void client.join(this.ADMIN_CHANNEL);
@@ -79,7 +75,7 @@ export class SoporteGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: OpenTicketMessageDto,
   ) {
-    const user = this.requireSocketUser(client);
+    const user = this.getSocketUser(client);
     const ticket = await this.soporteService.crearTicketEntity(
       payload,
       user.id,
@@ -105,7 +101,7 @@ export class SoporteGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: TicketRoomDto,
   ) {
-    const user = this.requireSocketUser(client);
+    const user = this.getSocketUser(client);
     const ticket = await this.soporteService.findTicketById(payload.ticketId);
 
     this.soporteService.validarParticipante(
@@ -132,7 +128,7 @@ export class SoporteGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: SupportMessageDto,
   ) {
-    const user = this.requireSocketUser(client);
+    const user = this.getSocketUser(client);
     const { mensaje, ticket } = await this.soporteService.procesarMensaje(
       payload.ticketId,
       payload.contenido,
@@ -156,7 +152,7 @@ export class SoporteGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: TicketRoomDto,
   ) {
-    const user = this.requireSocketUser(client);
+    const user = this.getSocketUser(client);
 
     if (user.role !== Role.ADMIN) {
       throw new ForbiddenException(
@@ -179,25 +175,13 @@ export class SoporteGateway
     this.server.to(ticket.salaId).emit('ticketClosed', data);
   }
 
-  // ── Autenticación ──────────────────────────────────────────
-  private requireSocketUser(client: Socket): SocketUserPayload {
-    const token = this.getHandshakeToken(client);
-    if (!token) throw new ForbiddenException('Token no proporcionado');
-
-    const payload = this.jwtService.verify<SocketJwtPayload>(token);
-    const id = Number(payload.id ?? payload.sub);
-    const { role } = payload;
-
-    if (Number.isNaN(id) || !Object.values(Role).includes(role)) {
-      throw new ForbiddenException('Usuario de socket invalido');
+  private getSocketUser(client: Socket): SocketUserPayload {
+    const user = client.data.user as SocketUserPayload | undefined;
+    if (!user) {
+      throw new ForbiddenException('Socket no autenticado');
     }
 
-    return { id, role };
-  }
-
-  private getHandshakeToken(client: Socket): string | null {
-    const header = client.handshake.headers.authorization;
-    return header ? header.replace(/^Bearer\s+/i, '') : null;
+    return user;
   }
 
   // ── Utilidades ─────────────────────────────────────────────
