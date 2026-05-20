@@ -3,6 +3,7 @@ import {
   ConflictException,
   NotFoundException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -13,11 +14,14 @@ import { CitaStatus } from 'src/common/enum/CitaStatus.enum'; // BIEN
 import { Medico } from 'src/modules/medicos/entities/medico.entity';
 import { Role } from 'src/common/enum/roles.enum';
 import { Paciente } from '../pacientes/entities/paciente.entity';
+import { EmailService } from '../mensajeria/email/email.service';
 
 type AuthUserPayload = { id: number; role: Role };
 
 @Injectable()
 export class CitasService {
+  private readonly logger = new Logger(CitasService.name);
+
   constructor(
     @InjectRepository(Cita)
     private readonly citaRepository: Repository<Cita>,
@@ -25,6 +29,7 @@ export class CitasService {
     private readonly medicoRepository: Repository<Medico>,
     @InjectRepository(Paciente)
     private readonly pacienteRepository: Repository<Paciente>,
+    private readonly emailService: EmailService,
   ) {}
 
   /**
@@ -84,7 +89,19 @@ export class CitasService {
       medico,
     });
 
-    return this.citaRepository.save(cita);
+    const citaGuardada = await this.citaRepository.save(cita);
+
+    // Enviar email de confirmación de forma asincrónica (no esperamos)
+    try {
+      await this.emailService.enviarConfirmacionCita(citaGuardada);
+    } catch (error) {
+      this.logger.error(
+        `Error al enviar email de confirmación para cita ${citaGuardada.id}: ${error}`,
+      );
+      // No lanzamos el error para no interrumpir la creación de la cita
+    }
+
+    return citaGuardada;
   }
 
   /**

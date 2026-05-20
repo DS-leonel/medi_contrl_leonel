@@ -10,6 +10,7 @@ import { CitasModule } from './modules/citas/citas.module';
 import { PacientesModule } from './modules/pacientes/pacientes.module';
 import { ChatModule } from './modules/mensajeria/chat/chat.module';
 import { SoporteModule } from './modules/mensajeria/soporte/soporte.module';
+import { EmailModule } from './modules/mensajeria/email/email.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { SoporteModule } from './modules/mensajeria/soporte/soporte.module';
     CitasModule,
     ChatModule,
     SoporteModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
