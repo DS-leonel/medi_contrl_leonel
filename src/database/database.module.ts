@@ -14,10 +14,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         port: Number(configService.get<string>('DB_PORT')),
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_NAME'),
+        database: configService.get<string>('DB_DATABASE'),
         synchronize: true,
         autoLoadEntities: true,
-        //logging: true,
+        ssl: {
+          rejectUnauthorized: false, // necesario para Aiven
+        },
       }),
     }),
   ],
