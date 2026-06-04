@@ -11,9 +11,11 @@ import { PacientesModule } from './modules/pacientes/pacientes.module';
 import { ChatModule } from './modules/mensajeria/chat/chat.module';
 import { SoporteModule } from './modules/mensajeria/soporte/soporte.module';
 import { EmailModule } from './modules/mensajeria/email/email.module';
+import { EstudiantesModule } from './modules/estudiantes/estudiantes.module';
 
 @Module({
   imports: [
+    EstudiantesModule,
     DatabaseModule,
     EnvModule,
     AuthModule,
