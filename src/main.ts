@@ -17,7 +17,7 @@ async function bootstrap() {
 
   /* PARA SWAGGER */
   const config = new DocumentBuilder()
-    .setTitle('"MediControl API"')
+    .setTitle('"Leonel Enriquez MediControl API"')
     .setDescription(' Sistema de Gestión de Citas Médicas')
     .setVersion('1.0')
     .addBearerAuth()
