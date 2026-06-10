@@ -14,7 +14,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         port: Number(configService.get<string>('DB_PORT')),
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_DATABASE'),
+        database: configService.get<string>('DB_NAME'),
         synchronize: true,
         autoLoadEntities: true,
         ssl: {
